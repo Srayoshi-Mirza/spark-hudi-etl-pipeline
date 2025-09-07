@@ -7,7 +7,7 @@
 
 A production-ready PySpark ETL pipeline template designed for modern Lakehouse architectures using Apache Hudi and Hive Metastore. This template demonstrates enterprise-level data engineering practices with incremental processing, comprehensive logging, error handling, and monitoring capabilities.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This pipeline implements a **Lakehouse architecture** that combines the best of data lakes and data warehouses:
 
@@ -71,7 +71,7 @@ This pipeline implements a **Lakehouse architecture** that combines the best of 
 - Hive Metastore configured
 - HDFS or compatible storage system
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### 1. Environment Setup
 
@@ -101,7 +101,7 @@ spark-submit \
   your_pipeline.py
 ```
 
-## 📊 Pipeline Architecture Deep Dive
+## Pipeline Architecture Deep Dive
 
 ### Task Flow Architecture
 
