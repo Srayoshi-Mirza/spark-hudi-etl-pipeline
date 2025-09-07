@@ -38,33 +38,33 @@ This pipeline implements a **Lakehouse architecture** that combines the best of 
 - **Incremental Processing**: Delta load capabilities
 - **Comprehensive Logging**: Pipeline execution tracking
 
-## 🚀 Features
+## Features
 
-### ✅ **Production-Ready**
+### **Production-Ready**
 - Comprehensive error handling and retry logic
 - Resource management and cleanup
 - Configurable for multiple environments (dev/staging/prod)
 - Extensive logging with structured format
 
-### ⚡ **Performance Optimized**
+### **Performance Optimized**
 - Adaptive query execution enabled
 - Partition coalescing for optimal performance
 - Snappy compression for storage efficiency
 - Memory and storage fraction tuning
 
-### 🔄 **Incremental Processing**
+### **Incremental Processing**
 - Change Data Capture (CDC) capabilities
 - Timestamp-based incremental loads
 - Idempotent pipeline execution
 - Full and incremental load strategies
 
-### 📊 **Monitoring & Observability**
+### **Monitoring & Observability**
 - Pipeline execution logging
 - Status tracking and reporting
 - Processing time and record count metrics
 - Error tracking with detailed messages
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Apache Spark 3.0+ with Hudi support
 - Python 3.8+
@@ -161,7 +161,7 @@ last_run_df = spark.sql("""
 - **Transform**: Business logic and data quality checks
 - **Load**: Upsert to Hudi tables with conflict resolution
 
-## 🔧 Configuration & Customization
+## Configuration & Customization
 
 ### Environment Configuration
 
@@ -233,7 +233,7 @@ def process_data(df):
         .withColumn("load_timestamp", current_timestamp())
 ```
 
-## 🎯 Usage Examples
+## Usage Examples
 
 ### Basic Pipeline Execution
 
@@ -278,7 +278,7 @@ get_pipeline_status(days=14)
 # |data_pipeline     |2025-01-15 10:30:00|2025-01-15 10:32:15|SUCCESS|
 ```
 
-## 📈 Performance Tuning
+## Performance Tuning
 
 ### Spark Configuration Best Practices
 
@@ -306,7 +306,7 @@ get_pipeline_status(days=14)
         "org.apache.hudi.keygen.NonpartitionedKeyGenerator")
 ```
 
-## 🔍 Monitoring & Alerting
+## Monitoring & Alerting
 
 ### Pipeline Metrics
 
@@ -334,7 +334,7 @@ ORDER BY current_run_timestamp DESC
 LIMIT 10;
 ```
 
-## 🚨 Error Handling & Recovery
+## Error Handling & Recovery
 
 ### Comprehensive Error Management
 
@@ -359,7 +359,7 @@ except Exception as e:
 3. **Detailed Logging**: Full error context for debugging
 4. **Resource Cleanup**: Proper Spark session management
 
-## 🔧 Development Workflow
+## Development Workflow
 
 ### Local Development
 
@@ -382,7 +382,7 @@ processed_df = process_data(test_df)
 processed_df.show()
 ```
 
-## 📚 Best Practices Demonstrated
+## Best Practices Demonstrated
 
 ### 1. **Lakehouse Architecture Patterns**
 - **Unified Storage**: Single source of truth with ACID properties
@@ -401,7 +401,7 @@ processed_df.show()
 - **Code Organization**: Modular and maintainable structure
 - **Documentation**: Comprehensive inline documentation
 
-## 🎓 Learning Outcomes
+## Learning Outcomes
 
 This pipeline demonstrates proficiency in:
 
@@ -413,14 +413,14 @@ This pipeline demonstrates proficiency in:
 - **Operational Excellence**: Monitoring and alerting
 - **Software Engineering**: Clean, maintainable code
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## Contributing
 
 This is a template project designed for educational and portfolio purposes. Feel free to fork and customize for your own use cases!
 
 ---
 
-⭐ **Star this repository** if you found it helpful for your data engineering journey!
+**Star this repository** if you found it helpful for your data engineering journey!
