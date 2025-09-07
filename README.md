@@ -29,6 +29,170 @@ This pipeline implements a **Lakehouse architecture** that combines the best of 
                        │ • Error Handle  │
                        └─────────────────┘
 ```
+## Engineering Practices & Design Patterns
+
+### **The List that has been followed while making this Pipeline**
+
+#### **1. Separation of Concerns**
+```python
+def get_spark_session():          # Infrastructure setup only
+def create_database_and_table():  # Schema management only  
+def extract_source_data():        # Data extraction only
+def process_data():               # Business logic only
+def write_hudi_table():           # Data persistence only
+```
+Each function has a single, well-defined responsibility for maintainability and testability.
+
+#### **2. Configuration Management**
+```python
+# Centralized configuration constants
+DATABASE_NAME = "analytics_layer"
+PIPELINE_NAME = "data_processing_pipeline"
+
+# Environment-specific configurations
+ENVIRONMENT_CONFIGS = {
+    "development": {"database_name": "dev_analytics_layer"},
+    "production": {"database_name": "prod_analytics_layer"}
+}
+```
+Zero hardcoded values with environment-aware configuration management.
+
+#### **3. Comprehensive Logging & Observability**
+- **Structured Logging**: Consistent format with timestamps and levels
+- **Execution Metrics**: Processing time, record counts, status tracking
+- **Error Context**: Detailed error messages with full stack traces
+- **Audit Trail**: Complete pipeline execution history
+
+#### **4. Error Handling & Recovery**
+```python
+try:
+    records = run_pipeline()
+    create_log_entry(spark, last_run_ts, current_run_ts, "SUCCESS", records, processing_time)
+except Exception as e:
+    create_log_entry(spark, last_run_ts, current_run_ts, "FAILED", 0, processing_time, str(e))
+    raise
+finally:
+    if cleanup_spark:
+        spark.stop()  # Always cleanup resources
+```
+Graceful error handling with proper resource cleanup and failure logging.
+
+#### **5. Idempotent Design**
+- **Safe Reruns**: Pipeline produces same result regardless of execution count
+- **No-Data Handling**: Graceful exit when no new data is available
+- **Upsert Operations**: Conflict resolution through Hudi's merge capabilities
+
+#### **6. Resource Management**
+- **Spark Session Lifecycle**: Proper creation and cleanup
+- **Memory Optimization**: Tuned configurations for different environments
+- **Connection Pooling**: Efficient resource utilization patterns
+
+---
+
+### **Incremental Pipeline Design - Complete Implementation**
+
+#### **Phase 1: State Management & Change Detection**
+```python
+def get_last_run_timestamp(spark):
+    """Watermark management with automatic recovery"""
+    last_run_df = spark.sql(f"""
+        SELECT current_run_timestamp FROM metadata_layer.pipeline_log 
+        WHERE pipeline_name = '{PIPELINE_NAME}' AND status = 'SUCCESS'
+        ORDER BY current_run_timestamp DESC LIMIT 1
+    """)
+```
+
+**Implemented Features:**
+- **Timestamp-based Change Detection**: Efficient filtering on temporal columns
+- **Watermark Persistence**: Database-stored state with automatic recovery
+- **First-Run Handling**: Graceful full-load when no previous state exists
+
+#### **Phase 2: Data Consistency & ACID Properties**
+```python
+# Hudi configuration for ACID guarantees
+TBLPROPERTIES (
+    type = 'cow',
+    primaryKey = 'record_id',
+    preCombineField = 'load_timestamp'  # Conflict resolution
+)
+```
+
+**Implemented Features:**
+- **Atomicity**: All-or-nothing updates via Hudi transactions
+- **Consistency**: Data integrity through primary key constraints
+- **Isolation**: Concurrent read safety during updates
+- **Durability**: Committed data persistence with metadata tracking
+
+#### **Phase 3: Performance Optimization**
+```python
+# Spark optimization for incremental processing
+.config("spark.sql.adaptive.enabled", "true")
+.config("spark.sql.adaptive.coalescePartitions.enabled", "true")
+.config("spark.sql.shuffle.partitions", "100")  # Tuned for incremental loads
+```
+
+**Implemented Features:**
+- **Adaptive Query Execution**: Dynamic optimization based on data statistics
+- **Partition Management**: Automatic coalescing for small incremental batches
+- **Predicate Pushdown**: Efficient timestamp filtering at source level
+
+#### **Phase 4: Monitoring & Alerting Foundation**
+```python
+def create_log_entry(spark, last_run_ts, current_run_ts, status, 
+                    records_processed, processing_time, error_message):
+    """Comprehensive execution tracking for monitoring systems"""
+```
+
+**Implemented Metrics:**
+- **Pipeline Health**: Success/failure rates with detailed error context
+- **Performance Metrics**: Processing time trends and throughput analysis
+- **Data Metrics**: Record volumes and processing lag measurements
+- **Resource Metrics**: Execution time and resource utilization tracking
+
+---
+
+### 🚀 **Advanced Patterns & Best Practices**
+
+#### **1. Multi-Pattern Execution Support**
+```python
+# Pattern 1: Automated execution
+daily_pipeline_run()
+
+# Pattern 2: Session management control  
+spark = get_spark_session()
+try:
+    records = run_pipeline(spark)
+finally:
+    spark.stop()
+
+# Pattern 3: Monitoring only
+get_pipeline_status(days=14)
+```
+
+#### **2. Environment-Aware Configuration**
+- **Development**: Lower resource allocation, debugging enabled
+- **Staging**: Production-like setup with safety nets
+- **Production**: Optimized for performance and reliability
+
+#### **3. Operational Excellence**
+- **Graceful Degradation**: No-data scenarios don't cause failures
+- **Resource Efficiency**: Conditional Spark session management
+- **Maintenance Automation**: Automatic Hudi compaction and cleanup
+
+---
+
+### **Industry Standards Demonstrated**
+
+| **Practice** | **Implementation** | **Business Value** |
+|-------------|-------------------|-------------------|
+| **Incremental Processing** | Timestamp-based CDC with watermarks | Cost efficiency, faster processing |
+| **Data Lake Management** | Hudi ACID transactions | Data consistency, reliability |
+| **Observability** | Comprehensive logging and metrics | Operational visibility, debugging |
+| **Error Resilience** | Graceful failures with recovery | High availability, data integrity |
+| **Performance Tuning** | Environment-specific optimizations | Resource efficiency, SLA compliance |
+| **DevOps Integration** | Multiple execution patterns | CI/CD compatibility, operational flexibility |
+
+---
 
 ### Key Components
 
