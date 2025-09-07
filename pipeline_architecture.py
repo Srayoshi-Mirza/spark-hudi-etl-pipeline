@@ -7,11 +7,11 @@ import time
 import uuid
 
 # Configuration constants - Customize these for your project
-DATABASE_NAME = "analytics_layer"
-TARGET_TABLE = f"{DATABASE_NAME}.processed_data"
+DATABASE_NAME = "your_database_name"
+TARGET_TABLE = f"{DATABASE_NAME}.your_targeted_table"
 LOG_TABLE = "metadata_layer.pipeline_log"
 PIPELINE_NAME = "data_processing_pipeline"
-TABLE_PATH = f"/user/hive/warehouse/{DATABASE_NAME}.db/processed_data"
+TABLE_PATH = f"/user/hive/warehouse/{DATABASE_NAME}.db/your_targeted_table"
 LOG_TABLE_PATH = f"/user/hive/warehouse/metadata_layer.db/pipeline_log"
 
 # Configure logging
@@ -76,7 +76,7 @@ def create_database_and_table(spark):
         
         # Create main data table (customize schema as needed)
         spark.sql(f"""
-            CREATE TABLE IF NOT EXISTS {DATABASE_NAME}.processed_data (
+            CREATE TABLE IF NOT EXISTS {DATABASE_NAME}.your_targeted_table (
                 record_id STRING,
                 entity_id STRING,
                 event_timestamp TIMESTAMP,
@@ -95,7 +95,7 @@ def create_database_and_table(spark):
                 preCombineField = 'load_timestamp'
             )
         """)
-        logger.info(f"Hudi table {DATABASE_NAME}.processed_data created/verified")        
+        logger.info(f"Hudi table {DATABASE_NAME}.your_targeted_table created/verified")        
         # Create log table
         spark.sql(f"""
             CREATE TABLE IF NOT EXISTS metadata_layer.pipeline_log (
@@ -296,7 +296,7 @@ def run_pipeline(spark=None):
         # Write to Hudi table
         write_hudi_table(
             processed_df,
-            "processed_data",
+            "your_targeted_table",
             TABLE_PATH,
             "record_id",  # Customize primary key
             "load_timestamp"
@@ -422,7 +422,7 @@ def create_sample_data_for_testing(spark):
 # Configuration template for different environments
 ENVIRONMENT_CONFIGS = {
     "development": {
-        "database_name": "dev_analytics_layer",
+        "database_name": "dev_your_database_name",
         "pipeline_name": "dev_data_processing_pipeline",
         "spark_configs": {
             "spark.sql.shuffle.partitions": "10",
@@ -430,7 +430,7 @@ ENVIRONMENT_CONFIGS = {
         }
     },
     "staging": {
-        "database_name": "staging_analytics_layer",
+        "database_name": "staging_your_database_name",
         "pipeline_name": "staging_data_processing_pipeline",
         "spark_configs": {
             "spark.sql.shuffle.partitions": "50",
@@ -438,7 +438,7 @@ ENVIRONMENT_CONFIGS = {
         }
     },
     "production": {
-        "database_name": "prod_analytics_layer",
+        "database_name": "prod_your_database_name",
         "pipeline_name": "prod_data_processing_pipeline",
         "spark_configs": {
             "spark.sql.shuffle.partitions": "200",
