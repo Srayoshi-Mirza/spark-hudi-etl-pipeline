@@ -271,7 +271,7 @@ spark-submit \
 
 ```mermaid
 graph TD
-    A[Initialize Spark Session] --> B[Create Database Schema]
+    A[Initialize Spark Session] --> B[Create Database Schema If not Present]
     B --> C[Get Last Run Timestamp]
     C --> D{First Run?}
     D -->|Yes| E[Full Load]
