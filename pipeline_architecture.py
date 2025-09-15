@@ -9,10 +9,10 @@ import uuid
 # Configuration constants - Customize these for your project
 DATABASE_NAME = "your_database_name"
 TARGET_TABLE = f"{DATABASE_NAME}.your_targeted_table"
-LOG_TABLE = "metadata_layer.pipeline_log"
+LOG_TABLE = "pipeline_layer.pipeline_log"
 PIPELINE_NAME = "data_processing_pipeline"
-TABLE_PATH = f"/user/hive/warehouse/{DATABASE_NAME}.db/your_targeted_table"
-LOG_TABLE_PATH = f"/user/hive/warehouse/metadata_layer.db/pipeline_log"
+TABLE_PATH = f"/your warehouse path/{DATABASE_NAME}.db/your_targeted_table"
+LOG_TABLE_PATH = f"/your warehouse path/pipeline_layer.db/pipeline_log"
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +27,7 @@ def get_spark_session():
         spark = (
             SparkSession.builder
             .appName("GenericDataPipeline")
-            .enableHiveSupport()
+            .enables3Support()
             # Core Spark SQL optimizations
             .config("spark.sql.adaptive.enabled", "true")
             .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
@@ -71,8 +71,8 @@ def create_database_and_table(spark):
     try:
         # Create databases
         spark.sql(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}")
-        spark.sql("CREATE DATABASE IF NOT EXISTS metadata_layer")
-        logger.info(f"Databases {DATABASE_NAME} and metadata_layer created/verified")
+        spark.sql("CREATE DATABASE IF NOT EXISTS pipeline_layer")
+        logger.info(f"Databases {DATABASE_NAME} and pipeline_layer created/verified")
         
         # Create main data table (customize schema as needed)
         spark.sql(f"""
@@ -98,7 +98,7 @@ def create_database_and_table(spark):
         logger.info(f"Hudi table {DATABASE_NAME}.your_targeted_table created/verified")        
         # Create log table
         spark.sql(f"""
-            CREATE TABLE IF NOT EXISTS metadata_layer.pipeline_log (
+            CREATE TABLE IF NOT EXISTS pipeline_layer.pipeline_log (
                 pipeline_name STRING,
                 last_run_timestamp BIGINT,
                 current_run_timestamp BIGINT,
@@ -115,7 +115,7 @@ def create_database_and_table(spark):
                 preCombineField = 'created_at'
             )
         """)
-        logger.info("Log table metadata_layer.pipeline_log created/verified")
+        logger.info("Log table pipeline_layer.pipeline_log created/verified")
     #################################################################    
     except Exception as e:
         logger.error(f"Error creating database/table: {str(e)}")
@@ -130,7 +130,7 @@ def get_last_run_timestamp(spark):
     try:
         last_run_df = spark.sql(f"""
             SELECT current_run_timestamp 
-            FROM metadata_layer.pipeline_log 
+            FROM pipeline_layer.pipeline_log 
             WHERE pipeline_name = '{PIPELINE_NAME}' 
             AND status = 'SUCCESS'
             ORDER BY current_run_timestamp DESC 
@@ -184,10 +184,10 @@ def create_log_entry(spark, last_run_ts, current_run_ts, status, records_process
             .option("hoodie.datasource.write.recordkey.field", "pipeline_name,created_at") \
             .option("hoodie.datasource.write.precombine.field", "created_at") \
             .option("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator") \
-            .option("hoodie.datasource.hive_sync.enable", "true") \
-            .option("hoodie.datasource.hive_sync.database", "metadata_layer") \
-            .option("hoodie.datasource.hive_sync.table", "pipeline_log") \
-            .option("hoodie.datasource.hive_sync.mode", "hms") \
+            .option("hoodie.datasource.s3_sync.enable", "true") \
+            .option("hoodie.datasource.s3_sync.database", "pipeline_layer") \
+            .option("hoodie.datasource.s3_sync.table", "pipeline_log") \
+            .option("hoodie.datasource.s3_sync.mode", "hms") \
             .option("hoodie.metadata.enable", "false") \
             .option("hoodie.clean.automatic", "false") \
             .mode("append") \
@@ -245,10 +245,10 @@ def write_hudi_table(df, table_name, hdfs_path, primary_key, precombine_field):
             .option("hoodie.datasource.write.operation", "upsert") \
             .option("hoodie.datasource.write.recordkey.field", primary_key) \
             .option("hoodie.datasource.write.precombine.field", precombine_field) \
-            .option("hoodie.datasource.hive_sync.enable", "true") \
-            .option("hoodie.datasource.hive_sync.database", DATABASE_NAME) \
-            .option("hoodie.datasource.hive_sync.table", table_name) \
-            .option("hoodie.datasource.hive_sync.mode", "hms") \
+            .option("hoodie.datasource.s3_sync.enable", "true") \
+            .option("hoodie.datasource.s3_sync.database", DATABASE_NAME) \
+            .option("hoodie.datasource.s3_sync.table", table_name) \
+            .option("hoodie.datasource.s3_sync.mode", "hms") \
             .option("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator") \
             .option("hoodie.clean.automatic", "true") \
             .option("hoodie.clean.async", "false") \
@@ -354,7 +354,7 @@ def get_pipeline_status(spark=None, days=7):
                 processing_time_seconds,
                 error_message,
                 FROM_UNIXTIME(created_at/1000) as created_time
-            FROM metadata_layer.pipeline_log
+            FROM pipeline_layer.pipeline_log
             WHERE pipeline_name = '{PIPELINE_NAME}'
             AND current_run_timestamp >= {cutoff_time}
             ORDER BY current_run_timestamp DESC
