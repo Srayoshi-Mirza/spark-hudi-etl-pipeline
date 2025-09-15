@@ -5,11 +5,11 @@
 [![Hudi](https://img.shields.io/badge/apache--hudi-0.12+-green.svg)](https://hudi.apache.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A production-ready PySpark ETL pipeline template designed for modern Lakehouse architectures using Apache Hudi and Hive Metastore. This template demonstrates enterprise-level data engineering practices with incremental processing, comprehensive logging, error handling, and monitoring capabilities.
+A production-ready PySpark ETL pipeline template designed for modern Delta Lake architectures using Apache Hudi and Hive Metastore. This template demonstrates enterprise-level data engineering practices with incremental processing, comprehensive logging, error handling, and monitoring capabilities.
 
 ## Architecture Overview
 
-This pipeline implements a **Lakehouse architecture** that combines the best of data lakes and data warehouses:
+This pipeline implements a **Delta Lake architecture** that combines the best of data lakes and data warehouses:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -293,7 +293,7 @@ graph TD
 
 #### 1. **Session Management** (`get_spark_session()`)
 ```python
-# Optimized Spark configuration for Lakehouse
+# Optimized Spark configuration for Delta Lake
 spark = SparkSession.builder \
     .appName("DataPipeline") \
     .config("spark.sql.adaptive.enabled", "true") \
@@ -548,7 +548,7 @@ processed_df.show()
 
 ## Best Practices Demonstrated
 
-### 1. **Lakehouse Architecture Patterns**
+### 1. **Delta Lake Architecture Patterns**
 - **Unified Storage**: Single source of truth with ACID properties
 - **Schema Management**: Centralized metadata with Hive
 - **Performance**: Optimized for both batch and streaming
