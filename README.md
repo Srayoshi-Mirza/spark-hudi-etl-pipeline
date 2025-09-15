@@ -1,4 +1,4 @@
-# PySpark Hudi ETL Pipeline Template
+# PySpark Pipeline Template
 
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PySpark](https://img.shields.io/badge/pyspark-3.0+-orange.svg)](https://spark.apache.org/)
