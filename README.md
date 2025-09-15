@@ -186,7 +186,7 @@ get_pipeline_status(days=14)
 | **Practice** | **Implementation** | **Business Value** |
 |-------------|-------------------|-------------------|
 | **Incremental Processing** | Timestamp-based CDC with watermarks | Cost efficiency, faster processing |
-| **Data Lake Management** | Hudi ACID transactions | Data consistency, reliability |
+| **Delta Lake Management** | ACID transactions | Data consistency, reliability |
 | **Observability** | Comprehensive logging and metrics | Operational visibility, debugging |
 | **Error Resilience** | Graceful failures with recovery | High availability, data integrity |
 | **Performance Tuning** | Environment-specific optimizations | Resource efficiency, SLA compliance |
